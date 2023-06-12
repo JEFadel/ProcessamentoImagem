@@ -18,7 +18,7 @@ public class Main {
         long endTime = System.currentTimeMillis();
         long executionTime = endTime - startTime;
 
-        System.out.println("Tempo de execução (sem threads): " + executionTime + " milissegundos");
+        System.out.println("Tempo de execução (1 thread): " + executionTime + " milissegundos");
 
         File outputFile = new File(DESTINATION_FILE);
         ImageIO.write(resultImage, "jpg", outputFile);
