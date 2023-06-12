@@ -2,59 +2,30 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Main {
     public static final String SOURCE_FILE = "./resources/many-flowers.jpg";
     public static final String DESTINATION_FILE = "./out/many-flowers.jpg";
 
-    public static final int NUM_THREADS = 4; // Define o número de threads a serem utilizadas
-
     public static void main(String[] args) throws IOException {
         BufferedImage originalImage = ImageIO.read(new File(SOURCE_FILE));
         BufferedImage resultImage = new BufferedImage(originalImage.getWidth(), originalImage.getHeight(), BufferedImage.TYPE_INT_RGB);
 
-        recolorMultiThreaded(originalImage, resultImage); // Executa o processamento multi-threaded
+        long startTime = System.currentTimeMillis();
+
+        recolorSingleThreaded(originalImage, resultImage);
+
+        long endTime = System.currentTimeMillis();
+        long executionTime = endTime - startTime;
+
+        System.out.println("Tempo de execução (sem threads): " + executionTime + " milissegundos");
 
         File outputFile = new File(DESTINATION_FILE);
         ImageIO.write(resultImage, "jpg", outputFile);
     }
 
-    public static void recolorMultiThreaded(BufferedImage originalImage, BufferedImage resultImage) {
-        List<Thread> threads = new ArrayList<>();
-
-        int width = originalImage.getWidth();
-        int height = originalImage.getHeight();
-
-        int threadWidth = width / NUM_THREADS; // Divide a largura da imagem entre as threads
-
-        for (int i = 0; i < NUM_THREADS; i++) {
-            final int threadIndex = i;
-            Thread thread = new Thread(() -> {
-                int leftCorner = threadIndex * threadWidth;
-                int rightCorner = (threadIndex + 1) * threadWidth;
-
-                // A última thread trata qualquer largura restante
-                if (threadIndex == NUM_THREADS - 1) {
-                    rightCorner = width;
-                }
-
-                recolorImage(originalImage, resultImage, leftCorner, 0, rightCorner - leftCorner, height);
-            });
-
-            threads.add(thread);
-            thread.start();
-        }
-
-        // Aguarda a conclusão de todas as threads
-        for (Thread thread : threads) {
-            try {
-                thread.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+    public static void recolorSingleThreaded(BufferedImage originalImage, BufferedImage resultImage) {
+        recolorImage(originalImage, resultImage, 0, 0, originalImage.getWidth(), originalImage.getHeight());
     }
 
     public static void recolorImage(BufferedImage originalImage, BufferedImage resultImage, int leftCorner, int topCorner,
