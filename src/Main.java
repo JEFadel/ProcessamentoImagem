@@ -2,6 +2,8 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Main {
     public static final String SOURCE_FILE = "./resources/many-flowers.jpg";
@@ -13,19 +15,36 @@ public class Main {
 
         long startTime = System.currentTimeMillis();
 
-        recolorSingleThreaded(originalImage, resultImage);
+        recolorMultiThreaded(originalImage, resultImage, 2); // Defina o número de threads desejado aqui
 
         long endTime = System.currentTimeMillis();
-        long executionTime = endTime - startTime;
+        long totalTime = endTime - startTime;
 
-        System.out.println("Tempo de execução (1 thread): " + executionTime + " milissegundos");
+        System.out.println("Tempo total: " + totalTime + " milissegundos");
 
         File outputFile = new File(DESTINATION_FILE);
         ImageIO.write(resultImage, "jpg", outputFile);
     }
 
-    public static void recolorSingleThreaded(BufferedImage originalImage, BufferedImage resultImage) {
-        recolorImage(originalImage, resultImage, 0, 0, originalImage.getWidth(), originalImage.getHeight());
+    public static void recolorMultiThreaded(BufferedImage originalImage, BufferedImage resultImage, int numThreads) {
+        ExecutorService executor = Executors.newFixedThreadPool(numThreads);
+        int width = originalImage.getWidth();
+        int height = originalImage.getHeight();
+
+        for (int i = 0; i < numThreads; i++) {
+            final int threadIndex = i;
+            executor.execute(() -> {
+                int startX = threadIndex * (width / numThreads);
+                int endX = (threadIndex + 1) * (width / numThreads);
+
+                recolorImage(originalImage, resultImage, startX, 0, endX - startX, height);
+            });
+        }
+
+        executor.shutdown();
+        while (!executor.isTerminated()) {
+            // Aguarda todas as threads terminarem
+        }
     }
 
     public static void recolorImage(BufferedImage originalImage, BufferedImage resultImage, int leftCorner, int topCorner,
