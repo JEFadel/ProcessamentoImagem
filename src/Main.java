@@ -15,12 +15,14 @@ public class Main {
 
         long startTime = System.currentTimeMillis();
 
-        recolorMultiThreaded(originalImage, resultImage, 2); // Defina o número de threads desejado aqui
+        int numThreads = 6; // Defina o número de threads desejado aqui
+        recolorMultiThreaded(originalImage, resultImage, numThreads);
 
         long endTime = System.currentTimeMillis();
         long totalTime = endTime - startTime;
 
         System.out.println("Tempo total: " + totalTime + " milissegundos");
+        System.out.println("Número de threads: " + numThreads);
 
         File outputFile = new File(DESTINATION_FILE);
         ImageIO.write(resultImage, "jpg", outputFile);
@@ -68,9 +70,9 @@ public class Main {
         int newBlue;
 
         if (isShadeOfGray(red, green, blue)) {
-            newRed = Math.min(255, red + 10);
-            newGreen = Math.max(0, green - 80);
-            newBlue = Math.max(0, blue - 20);
+            newRed = Math.min(255, red + 0);
+            newGreen = Math.max(0, green - 0);
+            newBlue = Math.max(0, blue - 255);
         } else {
             newRed = red;
             newGreen = green;
